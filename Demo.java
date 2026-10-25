@@ -1,256 +1,355 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*; 
+import java.awt.event.*;
 class Message{
-    String name;
     String message;
-    Message(String name1,String message1){
-        name=name1;
-        message=message1;
+    String id;
+    
+    Message(String message,String id){
+        this.message=message;
+        this.id=id;
     }
 }
-
-class SenderDetector extends JFrame{
-    public void showMessageDialog(Message messageObj){
+class DeviceDetector extends JFrame{
+    public  void showMessageDialog(Message newMessage){
         
     }
-    public String getname(){
-        return "";
-    }
+    
 }
-class NewSender extends SenderDetector{
-    private String name;
-    
-    JTextField textField;
+class NewSender extends DeviceDetector{
     JButton addButton;
+    JTextField textField;
     JButton sendButton;
-    JPanel centerPanel;
-    JLabel centerLabel;
-    
-    Message[] messageArray=new Message[0];
+    private  JPanel centerPanel;
+    private String iD;
+    private Message[] messageArray=new Message[0];
     NewSender(String name){
-        setSize(300,300); 
-        setResizable(false);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(300,300);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(false);
         setTitle(name);
+        this.iD=name;
+        
         JPanel panel1=new JPanel(new FlowLayout());
         panel1.setBackground(Color.BLUE);
-        JLabel label1=new JLabel(name,JLabel.CENTER);
-        label1.setForeground(Color.WHITE);
+        panel1.setForeground(Color.WHITE);
+        JLabel label1=new JLabel(name);
         label1.setFont(new Font("",Font.BOLD,15));
+        label1.setForeground(Color.WHITE);
         addButton=new JButton("+");
+        addButton.setFont(new Font("",Font.BOLD,15));
+        
         panel1.add(label1);
         panel1.add(addButton);
-       
-        this.name=name;
         add("North",panel1);
-       
+        
+        JPanel panel3=new JPanel(new FlowLayout());
+        textField=new JTextField(15);
+        textField.setFont(new Font("",1,10));
+        sendButton=new JButton("Send >");
+        
         centerPanel=new JPanel();
         add("Center",centerPanel);
-       
-        JPanel panel2=new JPanel(new FlowLayout());
-        textField = new JTextField(15);
-        sendButton=new JButton("Send >");
-       
-        panel2.add(textField);
-        panel2.add(sendButton);
-       
-        add("South",panel2);
-       
+        panel3.add(textField);
+        panel3.add(sendButton);
+        
+        add("South",panel3);
+        
         setVisible(true);
-       
         sendButton.addActionListener(new ActionListener(){
-            public  void actionPerformed(ActionEvent evt){
-               String message=textField.getText();
-               Message m1=new Message(name,message);
-               addCenterLabel(m1);
-               //centerLabel.setText("Me : "+message);
-               sendothersMessages(m1);
-               
-                textField.setText("");  
-            }
-            
-        });
-        
-        addButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-                goToControlRoom();
+                String message=textField.getText();
+                Message newMessage=new Message(message,iD);
+                sendMessageToCR(newMessage);
                 
-            }
-        });
-       
-    }
-    public static void goToControlRoom(){
-        ControlRoom.addNewSenders();
-    }
-    public void addCenterLabel(Message messageObj){
-        extendMessageArray();
-        messageArray[messageArray.length-1]=messageObj;
-        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
-        
-        String name1;
-        for(int i=0;i<messageArray.length;i++){
-            if(messageArray[i].name.equals(this.name)){
-               name1="Me";
-            }else{
-                name1=messageArray[i].name;
-            }
-            JLabel label=new JLabel(name1+" : "+messageArray[i].message);
-            centerPanel.add(label);
-            
-        }
-        add("Center",centerPanel);
-        setVisible(true);
-        
-    }
-    public void extendMessageArray(){
-        if(messageArray.length==0){
-            Message[] temp=new Message[1];
-            messageArray=temp;
-        }else if(messageArray.length>0){
-            Message[] temp=new Message[messageArray.length+1];
-            for(int i=0;i<messageArray.length;i++){
-                temp[i]=messageArray[i];
-            }
-            messageArray=temp;
-        }
-    }
-    
-    public static void sendothersMessages(Message messageObj){
-        ControlRoom.othersMessages(messageObj);
-    }
-    
-    public void showMessageDialog(Message messageObj){
-        addCenterLabel (messageObj);
-    }
-    public String getname(){
-        return name;
-    }
-}
-
-class AddSender extends JFrame{
-    AddSender(){
-        setSize(300,100);
-        setResizable(false);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setTitle("Add Sender");
-        
-        JLabel label1=new JLabel("Add Sender ",JLabel.CENTER);
-        label1.setFont(new Font("",Font.BOLD,20));
-        
-        JPanel centerPanel=new JPanel(new FlowLayout());
-        JLabel label2=new JLabel("Sender Name",JLabel.CENTER);
-        JTextField textField=new JTextField(15);
-        JButton button=new JButton("Enter");
-        button.setFont(new Font("",1,10));
-        
-        centerPanel.add(label2);
-        centerPanel.add(textField);
-        centerPanel.add(button);
-        add("Center",centerPanel);
-        
-        button.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent evt){
-                String name1=textField.getText();
-                ControlRoom.addSenders(new NewSender(name1));
                 textField.setText("");
             }
         });
         
+        
+        addButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt){
+                addNewSenders();
+            }
+        });
+    }
+    public  void addNewSenders(){
+        ControlRoom.addNewSender();
+    }
+    public static void sendMessageToCR(Message newMessage){
+        ControlRoom.sendothersMessages(newMessage);
+    }
+    public void showMessageDialog(Message newMessage){
+        extendMessageArray();  
+        messageArray[messageArray.length-1]=newMessage;
+        
+        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
+        for(int i=0;i<messageArray.length;i++){
+            String name="";
+            if(messageArray[i].id.equals(iD)){
+                name="Me";
+            }else{
+                name=messageArray[i].id;
+            }
+            JLabel label=new JLabel(name+" : "+messageArray[i].message);
+            centerPanel.add(label);
+            
+        }
+        
+        add("Center",centerPanel);
         setVisible(true);
+        
+    }
+    
+    
+    public void extendMessageArray(){
+        if(messageArray.length==0){
+            Message[] temp=new Message[1];
+            messageArray=temp;
+        }else if(messageArray.length>0){
+            Message[] temp=new Message[messageArray.length+1];
+            for(int i=0;i<messageArray.length;i++){
+                temp[i]=messageArray[i];
+            }
+            messageArray=temp;
+        }
+        
     }
 }
-class Sender1 extends SenderDetector{
-    private String name;
-    
+class AddNewSender extends JFrame{
     JTextField textField;
-    JButton addButton;
-    JButton sendButton;
-    JPanel centerPanel;
-    JLabel centerLabel;
-    
-    Message[] messageArray=new Message[0];
-    Sender1(){
-        setSize(300,300); 
-        setResizable(false);
+    JButton enterButton;
+    AddNewSender(){
+        setSize(300,100);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setTitle("Add New Sender");
+        JPanel panel=new JPanel(new FlowLayout());
+        JLabel label1=new JLabel("Add Sender");
+        textField=new JTextField(15);
+        enterButton=new JButton("Enter");
+        
+        enterButton.setFont(new Font("",Font.BOLD,10));
+        textField.setFont(new Font("",1,10));
+        
+        panel.add(label1);
+        panel.add(textField);
+        panel.add(enterButton);
+        add("Center",panel);
+        
+        enterButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt){
+                String name=textField.getText();
+                sendToCR(name);
+                
+                dispose();
+                setBackToNull();
+            }
+        });
+        
+        setVisible(true);
+        
+        
+    }
+    public void setBackToNull(){
+        ControlRoom.seta1BackToNull();
+    }
+    public void sendToCR(String name){
+        ControlRoom.addDevices(new NewSender(name));
+    }
+}
+class Sender1 extends DeviceDetector{
+    JButton addButton;
+    JTextField textField;
+    JButton sendButton;
+    private  JPanel centerPanel;
+    private String iD;
+    private Message[] messageArray=new Message[0];
+    Sender1(){
+        setSize(300,300);
         setLocation(0,0);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setTitle("Sender 01");
+        setResizable(false);
+        this.iD="Sender 01";
+        
         JPanel panel1=new JPanel(new FlowLayout());
         panel1.setBackground(Color.BLUE);
-        JLabel label1=new JLabel("Sender 01",JLabel.CENTER);
-        label1.setForeground(Color.WHITE);
+        panel1.setForeground(Color.WHITE);
+        JLabel label1=new JLabel("Sender 01");
         label1.setFont(new Font("",Font.BOLD,15));
+        label1.setForeground(Color.WHITE);
         addButton=new JButton("+");
+        addButton.setFont(new Font("",Font.BOLD,15));
+        
         panel1.add(label1);
         panel1.add(addButton);
-       
-        this.name="Sender 01";
         add("North",panel1);
-       
+        
+        JPanel panel3=new JPanel(new FlowLayout());
+        textField=new JTextField(15);
+        textField.setFont(new Font("",1,10));
+        sendButton=new JButton("Send >");
+        
         centerPanel=new JPanel();
         add("Center",centerPanel);
-       
-        JPanel panel2=new JPanel(new FlowLayout());
-        textField = new JTextField(15);
-        sendButton=new JButton("Send >");
-       
-        panel2.add(textField);
-        panel2.add(sendButton);
-       
-        add("South",panel2);
-       
+        panel3.add(textField);
+        panel3.add(sendButton);
+        
+        add("South",panel3);
+        
         setVisible(true);
-       
         sendButton.addActionListener(new ActionListener(){
-            public  void actionPerformed(ActionEvent evt){
-               String message=textField.getText();
-               Message m1=new Message("Sender 01",message);
-               addCenterLabel(m1);
-               //centerLabel.setText("Me : "+message);
-               sendothersMessages(m1);
-               
-                textField.setText("");  
+            public void actionPerformed(ActionEvent evt){
+                String message=textField.getText();
+                Message newMessage=new Message(message,iD);
+                sendMessageToCR(newMessage);
+                
+                textField.setText("");
             }
+        });
+        
+        
+        addButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt){
+                addNewSenders();
+            }
+        });
+    }
+    public  void addNewSenders(){
+        ControlRoom.addNewSender();
+    }
+    public static void sendMessageToCR(Message newMessage){
+        ControlRoom.sendothersMessages(newMessage);
+    }
+    public void showMessageDialog(Message newMessage){
+        extendMessageArray();  
+        messageArray[messageArray.length-1]=newMessage;
+        
+        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
+        for(int i=0;i<messageArray.length;i++){
+            String name="";
+            if(messageArray[i].id.equals(iD)){
+                name="Me";
+            }else{
+                name=messageArray[i].id;
+            }
+            JLabel label=new JLabel(name+" : "+messageArray[i].message);
+            centerPanel.add(label);
             
+        }
+        
+        add("Center",centerPanel);
+        setVisible(true);
+        
+    }
+    
+    
+    public void extendMessageArray(){
+        if(messageArray.length==0){
+            Message[] temp=new Message[1];
+            messageArray=temp;
+        }else if(messageArray.length>0){
+            Message[] temp=new Message[messageArray.length+1];
+            for(int i=0;i<messageArray.length;i++){
+                temp[i]=messageArray[i];
+            }
+            messageArray=temp;
+        }
+        
+    }
+}
+
+class Sender2 extends DeviceDetector{
+    JButton addButton;
+    JTextField textField;
+    JButton sendButton;
+    private  JPanel centerPanel;
+    private String iD;
+    private Message[] messageArray=new Message[0];
+    Sender2(){
+        setSize(300,300);
+        setLocation(300,0);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(false);
+        setTitle("Sender 02");
+        this.iD="Sender 02";
+        
+        JPanel panel1=new JPanel(new FlowLayout());
+        panel1.setBackground(Color.BLUE);
+        panel1.setForeground(Color.WHITE);
+        JLabel label1=new JLabel("Sender 02");
+        label1.setFont(new Font("",Font.BOLD,15));
+        label1.setForeground(Color.WHITE);
+        addButton=new JButton("+");
+        addButton.setFont(new Font("",Font.BOLD,15));
+        
+        panel1.add(label1);
+        panel1.add(addButton);
+        add("North",panel1);
+        
+        centerPanel=new JPanel();
+        add("Center",centerPanel);
+        
+        JPanel panel3=new JPanel(new FlowLayout());
+        textField=new JTextField(15);
+        textField.setFont(new Font("",1,10));
+        sendButton=new JButton("Send >");
+        
+        panel3.add(textField);
+        panel3.add(sendButton);
+        
+        add("South",panel3);
+        
+        setVisible(true);
+        sendButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt){
+                String message=textField.getText();
+                Message newMessage=new Message(message,iD);
+                sendMessageToCR(newMessage);
+                
+                
+                textField.setText("");
+            }
         });
         
         addButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-                goToControlRoom();
+                addNewSenders();
             }
         });
-       
-    }
-    
-    public static void goToControlRoom(){
-        ControlRoom.addNewSenders();
-    }
-    
-    public void addCenterLabel(Message messageObj){
-        extendMessageArray();
-        messageArray[messageArray.length-1]=messageObj;
-        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
         
-        String name1;
+    }
+    public  void addNewSenders(){
+        ControlRoom.addNewSender();
+    }
+    public static void sendMessageToCR(Message newMessage){
+        ControlRoom.sendothersMessages(newMessage);
+    }
+    public void showMessageDialog(Message newMessage){
+        extendMessageArray();
+        messageArray[messageArray.length-1]=newMessage;
+        
+        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
         for(int i=0;i<messageArray.length;i++){
-            if(messageArray[i].name.equals(this.name)){
-               name1="Me";
+            String name="";
+            if(messageArray[i].id.equals(iD)){
+                name="Me";
             }else{
-                name1=messageArray[i].name;
+                name=messageArray[i].id;
             }
-            JLabel label=new JLabel(name1+" : "+messageArray[i].message);
+            JLabel label=new JLabel(name+" : "+messageArray[i].message);
             centerPanel.add(label);
             
         }
+       
         add("Center",centerPanel);
-        setVisible(true);
-        
-        
+         setVisible(true);
         
     }
+    
+    
     public void extendMessageArray(){
         if(messageArray.length==0){
             Message[] temp=new Message[1];
@@ -262,106 +361,99 @@ class Sender1 extends SenderDetector{
             }
             messageArray=temp;
         }
-    }
-    
-    public static void sendothersMessages(Message messageObj){
-        ControlRoom.othersMessages(messageObj);
-    }
-    
-    public void showMessageDialog(Message messageObj){
-        addCenterLabel(messageObj);
-    }
-    public String getname(){
-        return name;
+        
     }
 }
-class Sender2 extends SenderDetector{
-    private String name;
-    
-    JTextField textField;
+
+class Sender3 extends DeviceDetector{
     JButton addButton;
+    JTextField textField;
     JButton sendButton;
-    JPanel centerPanel;
-    JLabel centerLabel;
-    
-    Message[] messageArray=new Message[0];
-    Sender2(){
-        setSize(300,300); 
-        setResizable(false);
+    private  JPanel centerPanel;
+    private String iD;
+    private Message[] messageArray=new Message[0];
+    Sender3(){
+        setSize(300,300);
+        setLocation(600,0);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocation(300,0);
-        setTitle("Sender 02");
+        setResizable(false);
+        setTitle("Sender 03");
+        this.iD="Sender 03";
+        
         JPanel panel1=new JPanel(new FlowLayout());
         panel1.setBackground(Color.BLUE);
-        JLabel label1=new JLabel("Sender 02",JLabel.CENTER);
-        label1.setForeground(Color.WHITE);
+        panel1.setForeground(Color.WHITE);
+        JLabel label1=new JLabel("Sender 03");
         label1.setFont(new Font("",Font.BOLD,15));
+        label1.setForeground(Color.WHITE);
         addButton=new JButton("+");
+        addButton.setFont(new Font("",Font.BOLD,15));
+        
         panel1.add(label1);
         panel1.add(addButton);
-       
-        this.name="Sender 02";
         add("North",panel1);
-       
+        
+        JPanel panel3=new JPanel(new FlowLayout());
+        textField=new JTextField(15);
+        textField.setFont(new Font("",1,10));
+        sendButton=new JButton("Send >");
+        
         centerPanel=new JPanel();
         add("Center",centerPanel);
-       
-        JPanel panel2=new JPanel(new FlowLayout());
-        textField = new JTextField(15);
-        sendButton=new JButton("Send >");
-       
-        panel2.add(textField);
-        panel2.add(sendButton);
-       
-        add("South",panel2);
-       
+        panel3.add(textField);
+        panel3.add(sendButton);
+        
+        add("South",panel3);
+        
         setVisible(true);
-       
         sendButton.addActionListener(new ActionListener(){
-            public  void actionPerformed(ActionEvent evt){
-               String message=textField.getText();
-               Message m1=new Message("Sender 02",message);
-               addCenterLabel(m1);
-               //centerLabel.setText("Me : "+message);
-               sendothersMessages(m1);
-               
-                textField.setText("");  
-            }
-            
-        });
-        
-         addButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-                goToControlRoom();
+                String message=textField.getText();
+                Message newMessage=new Message(message,iD);
+                sendMessageToCR(newMessage);
+                
+                
+                textField.setText("");
             }
         });
-       
-    }
-    public static void goToControlRoom(){
-        ControlRoom.addNewSenders();
-    }
-    public void addCenterLabel(Message messageObj){
-        extendMessageArray();
-        messageArray[messageArray.length-1]=messageObj;
-        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
         
-        String name1;
-        for(int i=0;i<messageArray.length;i++){
-            if(messageArray[i].name.equals(this.name)){
-               name1="Me";
-            }else{
-                name1=messageArray[i].name;
+        addButton.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent evt){
+                addNewSenders();
             }
-            JLabel label=new JLabel(name1+" : "+messageArray[i].message);
+        });
+        
+    }
+    public  void addNewSenders(){
+        ControlRoom.addNewSender();
+    }
+    
+    public static void sendMessageToCR(Message newMessage){
+        ControlRoom.sendothersMessages(newMessage);
+    }
+    public void showMessageDialog(Message newMessage){
+        extendMessageArray();  
+        messageArray[messageArray.length-1]=newMessage;
+        
+        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
+        for(int i=0;i<messageArray.length;i++){
+            String name="";
+            if(messageArray[i].id.equals(iD)){
+                name="Me";
+            }else{
+                name=messageArray[i].id;
+            }
+            JLabel label=new JLabel(name+" : "+messageArray[i].message);
             centerPanel.add(label);
             
         }
+        
         add("Center",centerPanel);
         setVisible(true);
         
-        
-        
     }
+    
+    
     public void extendMessageArray(){
         if(messageArray.length==0){
             Message[] temp=new Message[1];
@@ -373,218 +465,99 @@ class Sender2 extends SenderDetector{
             }
             messageArray=temp;
         }
-    }
-    
-    public static void sendothersMessages(Message messageObj){
-        ControlRoom.othersMessages(messageObj);
-    }
-    
-    public void showMessageDialog(Message messageObj){
-        addCenterLabel( messageObj);
-    }
-    public String getname(){
-        return name;
+        
     }
 }
 
-class Sender3 extends SenderDetector{
-    private String name;
-    
-    JTextField textField;
+class Sender4 extends DeviceDetector{
     JButton addButton;
-    JButton sendButton;
-    JPanel centerPanel;
-    JLabel centerLabel;
-    
-    Message[] messageArray=new Message[0];
-    Sender3(){
-        setSize(300,300); 
-        setResizable(false);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocation(600,0);
-        setTitle("Sender 03");
-       JPanel panel1=new JPanel(new FlowLayout());
-        panel1.setBackground(Color.BLUE);
-        JLabel label1=new JLabel("Sender 03",JLabel.CENTER);
-        label1.setForeground(Color.WHITE);
-        label1.setFont(new Font("",Font.BOLD,15));
-        addButton=new JButton("+");
-        panel1.add(label1);
-        panel1.add(addButton);
-       
-        this.name="Sender 03";
-        add("North",panel1);
-       
-        centerPanel=new JPanel();
-        add("Center",centerPanel);
-       
-        JPanel panel2=new JPanel(new FlowLayout());
-        textField = new JTextField(15);
-        sendButton=new JButton("Send >");
-       
-        panel2.add(textField);
-        panel2.add(sendButton);
-       
-        add("South",panel2);
-       
-        setVisible(true);
-       
-        sendButton.addActionListener(new ActionListener(){
-            public  void actionPerformed(ActionEvent evt){
-               String message=textField.getText();
-               Message m1=new Message("Sender 03",message);
-               addCenterLabel(m1);
-               sendothersMessages(m1);
-               
-                textField.setText("");  
-            }
-            
-        });
-        
-         addButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent evt){
-               goToControlRoom();
-            }
-        });
-       
-    }
-    public static void goToControlRoom(){
-        ControlRoom.addNewSenders();
-    }
-    
-    public void addCenterLabel(Message messageObj){
-        extendMessageArray();
-        messageArray[messageArray.length-1]=messageObj;
-        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
-        
-        String name1;
-        for(int i=0;i<messageArray.length;i++){
-            if(messageArray[i].name.equals(this.name)){
-               name1="Me";
-            }else{
-                name1=messageArray[i].name;
-            }
-            JLabel label=new JLabel(name1+" : "+messageArray[i].message);
-            centerPanel.add(label);
-            
-        }
-        add("Center",centerPanel);
-        setVisible(true);
-        
-        
-        
-    }
-    public void extendMessageArray(){
-        if(messageArray.length==0){
-            Message[] temp=new Message[1];
-            messageArray=temp;
-        }else if(messageArray.length>0){
-            Message[] temp=new Message[messageArray.length+1];
-            for(int i=0;i<messageArray.length;i++){
-                temp[i]=messageArray[i];
-            }
-            messageArray=temp;
-        }
-    }
-    
-    public static void sendothersMessages(Message messageObj){
-        ControlRoom.othersMessages(messageObj);
-    }
-    
-    public void showMessageDialog(Message messageObj){
-        addCenterLabel( messageObj);
-    }
-    public String getname(){
-        return name;
-    }
-}
-
-class Sender4 extends SenderDetector{
-    private String name;
-    
     JTextField textField;
-    JButton addButton;
     JButton sendButton;
-    JPanel centerPanel;
-    JLabel centerLabel;
-    
-    Message[] messageArray=new Message[0];
+    private  JPanel centerPanel;
+    private String iD;
+    private Message[] messageArray=new Message[0];
     Sender4(){
-        setSize(300,300); 
-        setResizable(false);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(300,300);
         setLocation(900,0);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(false);
         setTitle("Sender 04");
-       JPanel panel1=new JPanel(new FlowLayout());
+        this.iD="Sender 04";
+        
+        JPanel panel1=new JPanel(new FlowLayout());
         panel1.setBackground(Color.BLUE);
-        JLabel label1=new JLabel("Sender 04",JLabel.CENTER);
-        label1.setForeground(Color.WHITE);
+        panel1.setForeground(Color.WHITE);
+        JLabel label1=new JLabel("Sender 04");
         label1.setFont(new Font("",Font.BOLD,15));
+        label1.setForeground(Color.WHITE);
         addButton=new JButton("+");
+        addButton.setFont(new Font("",Font.BOLD,15));
+        
         panel1.add(label1);
         panel1.add(addButton);
-       
-        this.name="Sender 04";
         add("North",panel1);
-       
+        
+        JPanel panel3=new JPanel(new FlowLayout());
+        textField=new JTextField(15);
+        textField.setFont(new Font("",1,10));
+        sendButton=new JButton("Send >");
+        
         centerPanel=new JPanel();
         add("Center",centerPanel);
-       
-        JPanel panel2=new JPanel(new FlowLayout());
-        textField = new JTextField(15);
-        sendButton=new JButton("Send >");
-       
-        panel2.add(textField);
-        panel2.add(sendButton);
-       
-        add("South",panel2);
-       
+        panel3.add(textField);
+        panel3.add(sendButton);
+        
+        add("South",panel3);
+        
         setVisible(true);
-       
         sendButton.addActionListener(new ActionListener(){
-            public  void actionPerformed(ActionEvent evt){
-               String message=textField.getText();
-               Message m1=new Message("Sender 04",message);
-               addCenterLabel(m1);
-               
-               sendothersMessages(m1);
-               
-                textField.setText("");  
+            public void actionPerformed(ActionEvent evt){
+                String message=textField.getText();
+                Message newMessage=new Message(message,iD);
+                sendMessageToCR(newMessage);
+                
+                textField.setText("");
             }
-            
         });
         
-         addButton.addActionListener(new ActionListener(){
+        addButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-                goToControlRoom();
+                addNewSenders();
             }
         });
-       
-    }
-    public static void goToControlRoom(){
-        ControlRoom.addNewSenders();
+        
     }
     
-    public void addCenterLabel(Message messageObj){
-        extendMessageArray();
-        messageArray[messageArray.length-1]=messageObj;
-        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
+    public  void addNewSenders(){
+        ControlRoom.addNewSender();
+    }
+    
+    public static void sendMessageToCR(Message newMessage){
+        ControlRoom.sendothersMessages(newMessage);
+    }
+    public void showMessageDialog(Message newMessage){
+        extendMessageArray();  
+        messageArray[messageArray.length-1]=newMessage;
         
-        String name1;
+        centerPanel=new JPanel(new GridLayout(messageArray.length,1));
         for(int i=0;i<messageArray.length;i++){
-            if(messageArray[i].name.equals(this.name)){
-               name1="Me";
+            String name="";
+            if(messageArray[i].id.equals(iD)){
+                name="Me";
             }else{
-                name1=messageArray[i].name;
+                name=messageArray[i].id;
             }
-            JLabel label=new JLabel(name1+" : "+messageArray[i].message);
+            JLabel label=new JLabel(name+" : "+messageArray[i].message);
             centerPanel.add(label);
             
         }
+        
         add("Center",centerPanel);
         setVisible(true);
         
     }
+    
+    
     public void extendMessageArray(){
         if(messageArray.length==0){
             Message[] temp=new Message[1];
@@ -596,67 +569,56 @@ class Sender4 extends SenderDetector{
             }
             messageArray=temp;
         }
-    }
-    
-    public static void sendothersMessages(Message messageObj){
-        ControlRoom.othersMessages(messageObj);
-    }
-    
-    public void showMessageDialog(Message messageObj){
-        addCenterLabel( messageObj);
-    }
-    public String getname(){
-        return name;
+        
     }
 }
 
 
-class ControlRoom extends JFrame{
-    private static AddSender a1;
-    private static SenderDetector[] senderDetectorArray=new SenderDetector[0];
+class ControlRoom{
+    static AddNewSender a1;
+    private static DeviceDetector[] devicesArray=new DeviceDetector[0];
     
-    public static void addSenders(SenderDetector senderDetector){
+    public static void addDevices(DeviceDetector device){
         extendArray();
-        senderDetectorArray[senderDetectorArray.length-1]=senderDetector;
-        
+        devicesArray[devicesArray.length-1]=device;
     }
     public static void extendArray(){
-        if(senderDetectorArray.length==0){
-            SenderDetector[] temp = new SenderDetector[1];
-            senderDetectorArray=temp;
-        }else if(senderDetectorArray.length>0){
-            SenderDetector[] temp = new SenderDetector[senderDetectorArray.length+1];
+        if(devicesArray.length==0){
+            DeviceDetector[] temp=new DeviceDetector[1];
             
-            for(int i=0;i<senderDetectorArray.length;i++){
-                temp[i]=senderDetectorArray[i];
+            devicesArray=temp;
+        }else if(devicesArray.length>0){
+            DeviceDetector[] temp=new DeviceDetector[devicesArray.length+1];
+            
+            for(int i=0;i<devicesArray.length;i++){
+                temp[i]=devicesArray[i];
             }
-            senderDetectorArray=temp;
+            devicesArray=temp;
         }
     }
-    public static void othersMessages(Message messageObj){
-        for(int i=0;i<senderDetectorArray.length;i++){
-            if(senderDetectorArray[i].getname().equals(messageObj.name)){
-                continue;
-            }
-            senderDetectorArray[i].showMessageDialog(messageObj);
+    
+    public static void sendothersMessages(Message newMessage){
+        for(DeviceDetector device : devicesArray){
+            device.showMessageDialog(newMessage);
         }
     }
-    public static void addNewSenders(){
+    public static void addNewSender(){
         if(a1==null){
-            a1=new AddSender();
-            
+            a1=new AddNewSender();
         }
+    }
+    public static void seta1BackToNull(){
+        a1=null;
     }
     
     
-} 
-
-class  Demo{
+}
+class Demo{
     public static void main(String args[]){
-       ControlRoom c1=new ControlRoom();
-       c1.addSenders(new Sender1());
-       c1.addSenders(new Sender2());
-       c1.addSenders(new Sender3());
-       c1.addSenders(new Sender4());
+        ControlRoom c1=new ControlRoom();
+        c1.addDevices(new Sender1());
+        c1.addDevices(new Sender2());
+        c1.addDevices(new Sender3());
+        c1.addDevices(new Sender4());
     }
 }
